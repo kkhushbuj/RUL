@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.1177935462647793
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Contradicted",
     "confidence": "medium",
@@ -83,5 +83,10 @@
     ],
     "confidence": "medium"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's hypothesis assumes a novel failure mode linked to sensor_15, but without SHAP stability evidence, this could be a background-sampling artifact. The contradiction with literature might also stem from sensor_15 having near-zero variance in this engine's data, making it a spurious top feature. Alternatively, the model could be extrapolating outside its training distribution if this engine's operational conditions are unique.",
+    "alternative_explanation": "SHAP artifact due to background sampling noise or sensor_15 having low variance in this engine's data",
+    "confidence": "medium"
+  }
 }

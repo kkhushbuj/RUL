@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.19329728515774422
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Contradicted",
     "confidence": "high",
@@ -82,5 +82,10 @@
     ],
     "confidence": "medium"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's contradiction claim relies on a single literature source's expected pattern for sensor_11, but without SHAP stability evidence, the top attribution could be a background-sampling artifact. The hypothesis about atypical conditions is plausible but speculative, and the model might simply be extrapolating outside its training distribution if this engine's sensor_11 behavior was rare in the training data.",
+    "alternative_explanation": "The model could be extrapolating outside its training distribution if sensor_11's behavior in this engine was not well-represented in the training data, or the top attribution might be a SHAP artifact due to lack of stability evidence.",
+    "confidence": "medium"
+  }
 }

@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.25127216954433135
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Contradicted",
     "confidence": "high",
@@ -82,5 +82,10 @@
     ],
     "confidence": "medium"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's synthesis claims a contradiction based on sensor_11's direction, but without SHAP stability evidence, this could be a background-sampling artifact. The hypothesis suggests sensor lag, but this is speculative without further data. The model might also be extrapolating outside its training distribution if the engine's operating conditions are unusual.",
+    "alternative_explanation": "The attribution of sensor_11 as decreasing risk could be a SHAP artifact due to background sampling noise, as stability evidence is absent. Alternatively, the model may be extrapolating in an unfamiliar regime if this engine's data falls outside the training distribution.",
+    "confidence": "medium"
+  }
 }

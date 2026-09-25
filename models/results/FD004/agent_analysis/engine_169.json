@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.1367977501658587
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Contradicted",
     "confidence": "high",
@@ -84,5 +84,10 @@
     ],
     "confidence": "medium"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's hypothesis relies heavily on sensor_6's unexplained importance, but without SHAP stability evidence, this could be a background-sampling artifact. The contradiction with sensor_11's direction is valid, but the model might also be extrapolating outside its training distribution if this engine's sensor_11 behavior is unusually linear. Sensor_7's lack of confirmation in the literature is less concerning than sensor_11's direct contradiction.",
+    "alternative_explanation": "The model may be extrapolating outside its training distribution due to an unusually linear trend in sensor_11 for this engine, or sensor_6's importance could be a SHAP artifact given the lack of stability evidence.",
+    "confidence": "medium"
+  }
 }

@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.04864943524907369
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Novel",
     "confidence": "high",
@@ -81,5 +81,10 @@
     ],
     "confidence": "high"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's hypothesis assumes the model is capturing novel failure modes, but without SHAP stability evidence, the top sensor attributions could be artifacts of background sampling noise. Additionally, the model might be extrapolating outside its training distribution if the engine's sensor readings fall in an unseen regime, or sensor noise could be misinterpreted as meaningful signals. These simpler explanations should be ruled out before concluding the findings are novel.",
+    "alternative_explanation": "The top sensor attributions may be SHAP artifacts due to background sampling noise, as stability evidence is absent.",
+    "confidence": "medium"
+  }
 }

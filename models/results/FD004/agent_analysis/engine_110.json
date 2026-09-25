@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.0895113319659579
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Novel",
     "confidence": "high",
@@ -80,5 +80,10 @@
     ],
     "confidence": "high"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's hypothesis assumes sensor_6's dominance indicates a novel mechanism, but without SHAP stability evidence, this could be a background-sampling artifact. The model might also be extrapolating outside its training distribution if sensor_6 had near-zero variance in training data for this engine type. Alternatively, sensor noise or an overly narrow sequence window could artificially inflate sensor_6's importance.",
+    "alternative_explanation": "SHAP artifact due to unreported stability, or sensor_6 having near-zero variance in training data for this engine type.",
+    "confidence": "medium"
+  }
 }

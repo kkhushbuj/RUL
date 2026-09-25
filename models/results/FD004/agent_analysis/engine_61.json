@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.058749335105747445
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Novel",
     "confidence": "high",
@@ -80,5 +80,10 @@
     ],
     "confidence": "high"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's hypothesis suggests novel failure modes or unique operating conditions, but without evidence of SHAP stability, the top sensor attributions could be artifacts of background sampling noise. The absence of 'shap_stability' data means we cannot rule out that the high importance of sensors like sensor_13 and sensor_14 is due to SHAP instability rather than genuine insights. Additionally, the model might be extrapolating outside its training distribution if these sensors exhibit low variance or unusual behavior in this specific engine unit.",
+    "alternative_explanation": "The top sensor attributions could be SHAP artifacts due to background sampling noise, as stability evidence is absent. Alternatively, the model might be extrapolating outside its training distribution if these sensors have low variance or unusual patterns in this engine unit.",
+    "confidence": "medium"
+  }
 }
