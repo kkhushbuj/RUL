@@ -32,11 +32,16 @@ class _UnsqueezedOutput(torch.nn.Module):
         return self.model(x).unsqueeze(-1)
 
 
-def shap_per_engine(model, X_train, X_test, y_test, units, feature_columns, n_background=50, top_k=5):
+def shap_per_engine(model, X_train, X_test, y_test, units, feature_columns, n_background=50, top_k=5, seed=42):
     """Per-engine attribution summed over the time window. top_sensors only
     ranks columns named sensor_*; any other inputs (e.g. regime indicators)
-    are still reported in all_sensor_importance and non_sensor_share."""
-    rng = np.random.default_rng(42)
+    are still reported in all_sensor_importance and non_sensor_share.
+
+    `seed` controls which training windows are sampled into the background
+    set — GradientExplainer's expected-gradients estimate depends on this
+    sample, so varying it (see ml/shap_stability.py) measures how sensitive
+    the resulting attribution is to that random choice."""
+    rng = np.random.default_rng(seed)
     bg_idx = rng.choice(len(X_train), size=min(n_background, len(X_train)), replace=False)
     background = torch.from_numpy(X_train[bg_idx]).float()
 

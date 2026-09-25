@@ -1,5 +1,6 @@
 const EngineView = (() => {
   let engine = null;
+  let subset = "FD001";
   let sensorRows = null;
   let activeSensor = null;
   let chatMessages = [];
@@ -11,10 +12,11 @@ const EngineView = (() => {
     "Finalizing verdict...",
   ];
 
-  async function render(unit) {
+  async function render(unit, engineSubset) {
+    subset = engineSubset || "FD001";
     const app = document.getElementById("app");
     app.innerHTML = `
-      <a href="#/" class="back-link">← Back to fleet overview</a>
+      <a href="#/${subset === "FD001" ? "" : subset}" class="back-link">← Back to fleet overview</a>
       <div id="engine-content">
         <div class="skeleton" style="height:32px;width:220px;margin-bottom:12px;"></div>
         <div class="skeleton" style="height:280px;width:100%;"></div>
@@ -22,7 +24,10 @@ const EngineView = (() => {
     `;
 
     try {
-      const [engineData, sensors] = await Promise.all([API.engine(unit), API.engineSensors(unit).catch(() => null)]);
+      const [engineData, sensors] = await Promise.all([
+        API.engine(unit, subset),
+        API.engineSensors(unit, subset).catch(() => null),
+      ]);
       engine = engineData;
       sensorRows = sensors;
       activeSensor = engine.shap?.top_sensors?.[0]?.sensor ?? null;
@@ -49,7 +54,7 @@ const EngineView = (() => {
             ${riskBadge(engine.risk_score)}
             ${engine.deep_analysis ? `<span class="badge-deep">✨ Deep AI analysis</span>` : ""}
           </div>
-          <p class="engine-sub">Risk rank #${engine.risk_rank} of 100 test engines · FD001</p>
+          <p class="engine-sub">Risk rank #${engine.risk_rank} · ${subset}</p>
         </div>
         <div class="metrics-cluster">
           <div class="metric-block">
@@ -163,7 +168,7 @@ const EngineView = (() => {
     }, 4000);
 
     try {
-      const analysis = await API.analyzeEngine(engine.unit);
+      const analysis = await API.analyzeEngine(engine.unit, subset);
       engine.agent_analysis = analysis;
       renderAnalysisSlot();
       toast(`Deep analysis complete — verdict: ${analysis.synthesis_result?.verdict}`, "success");
@@ -251,7 +256,7 @@ const EngineView = (() => {
       renderChatSlot();
       document.getElementById("chat-input").focus();
       try {
-        const { answer } = await API.chat(engine.unit, question);
+        const { answer } = await API.chat(engine.unit, question, subset);
         chatMessages.push({ role: "assistant", content: answer });
       } catch {
         toast("Couldn't reach the chat backend.", "error");

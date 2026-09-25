@@ -95,5 +95,5 @@ python -c "from app.agents.literature_agent import build_knowledge_base; build_k
 cd backend && python -m app.agents.graph
 ```
 
-Dashboard: `backend` (FastAPI, port 8000) + `frontend` (Next.js, port 3000).
-See `.claude/launch.json`.
+Dashboard: `backend` (FastAPI, port 8000), serving the static vanilla-JS
+frontend at `backend/static/`. See `.claude/launch.json`.

@@ -240,6 +240,14 @@ button { font-family: inherit; cursor: pointer; }
   line-height: 1.6;
   margin: 0;
 }
+.subset-switcher {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+.subset-switcher .filter-chip {
+  cursor: pointer;
+}
 
 /* ---------- Stat cards ---------- */
 .stat-grid {

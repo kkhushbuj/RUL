@@ -25,6 +25,19 @@ or the model simply extrapolating outside its training distribution? Do not \
 just agree with the synthesis/hypothesis — actively look for a simpler or \
 alternative explanation.
 
+If "shap_stability" is present in the input, it is real evidence, not a claim \
+to take on faith: it reports how consistent the top-attributed sensor stayed \
+across several independent reruns of SHAP with a different random background \
+sample. Use it directly rather than guessing:
+- stable == true (high top_sensor_agreement_rate, low mode_sensor_importance_cv) \
+means the attribution is NOT explained by background-sampling noise — a \
+"maybe it's just a SHAP artifact" critique is weaker here and should say so.
+- stable == false means the top sensor changed across reruns or its importance \
+was volatile — that DOES support a SHAP-instability explanation, and you should \
+name it as the alternative_explanation.
+- If "shap_stability" is absent, you have no stability evidence either way — say \
+so explicitly rather than asserting an artifact explanation you cannot check.
+
 Respond with ONLY JSON:
 {
   "agrees_with_pipeline": true/false,
@@ -34,12 +47,18 @@ Respond with ONLY JSON:
 }"""
 
 
-def _build_payload(engine_shap: dict, synthesis_result: dict, hypothesis_result: dict | None) -> str:
+def _build_payload(
+    engine_shap: dict,
+    synthesis_result: dict,
+    hypothesis_result: dict | None,
+    shap_stability: dict | None = None,
+) -> str:
     return json.dumps(
         {
             "engine_shap": engine_shap,
             "synthesis_result": synthesis_result,
             "hypothesis_result": hypothesis_result,
+            "shap_stability": shap_stability,
         },
         indent=2,
     )
@@ -81,8 +100,13 @@ def _critique_anthropic(payload: str, model: str = "claude-sonnet-5") -> dict:
     return json.loads(text[start:end])
 
 
-def critique(engine_shap: dict, synthesis_result: dict, hypothesis_result: dict | None = None) -> dict:
-    payload = _build_payload(engine_shap, synthesis_result, hypothesis_result)
+def critique(
+    engine_shap: dict,
+    synthesis_result: dict,
+    hypothesis_result: dict | None = None,
+    shap_stability: dict | None = None,
+) -> dict:
+    payload = _build_payload(engine_shap, synthesis_result, hypothesis_result, shap_stability)
     if CRITIQUE_PROVIDER == "anthropic":
         return _critique_anthropic(payload)
     return _critique_cohere(payload)

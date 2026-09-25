@@ -13,6 +13,7 @@ import sys
 from app.agents.critique_agent import critique
 from app.agents.graph import build_graph
 from app.config import RESULTS_DIR
+from app.services.data_service import get_shap_stability
 
 MAX_CONSECUTIVE_FAILURES = 3
 FD001_NOVEL_RATE = 13 / 15
@@ -30,6 +31,7 @@ def synthesis_pass(subset) -> bool:
     base, out = _paths(subset)
     kb = json.loads((base / "literature_knowledge_base.json").read_text())
     engines = json.loads((base / "shap_explanations.json").read_text())
+    stability_by_unit = get_shap_stability(subset)
     graph = build_graph()
     failures = 0
     for i, engine in enumerate(engines, start=1):
@@ -44,6 +46,7 @@ def synthesis_pass(subset) -> bool:
             "synthesis_result": None,
             "hypothesis_result": None,
             "critique_result": None,
+            "shap_stability": stability_by_unit.get(engine["unit"]),
         }
         try:
             result = graph.invoke(state)
@@ -63,14 +66,16 @@ def synthesis_pass(subset) -> bool:
 
 def critique_pass(subset) -> bool:
     _, out = _paths(subset)
+    stability_by_unit = get_shap_stability(subset)
     failures = 0
     for path in sorted(out.glob("engine_*.json")):
         state = json.loads(path.read_text())
         if state.get("critique_result"):
             continue
+        stability = state.get("shap_stability") or stability_by_unit.get(state["unit"])
         try:
             state["critique_result"] = critique(
-                state["engine_shap"], state["synthesis_result"], state.get("hypothesis_result")
+                state["engine_shap"], state["synthesis_result"], state.get("hypothesis_result"), stability
             )
         except Exception as e:
             failures += 1

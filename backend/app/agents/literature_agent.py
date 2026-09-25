@@ -199,12 +199,11 @@ def build_knowledge_base(
     return knowledge_base
 
 
-def load_knowledge_base() -> dict:
-    if not KNOWLEDGE_BASE_PATH.exists():
-        raise FileNotFoundError(
-            f"{KNOWLEDGE_BASE_PATH} not found — run build_knowledge_base() first."
-        )
-    with open(KNOWLEDGE_BASE_PATH) as f:
+def load_knowledge_base(path=None) -> dict:
+    path = path or KNOWLEDGE_BASE_PATH
+    if not path.exists():
+        raise FileNotFoundError(f"{path} not found — run build_knowledge_base() first.")
+    with open(path) as f:
         return json.load(f)
 
 

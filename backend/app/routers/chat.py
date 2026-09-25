@@ -23,6 +23,7 @@ the data. If the data doesn't cover what's asked, say so rather than guessing.""
 class ChatRequest(BaseModel):
     unit: int
     question: str
+    subset: str = "FD001"
 
 
 @router.post("")
@@ -30,15 +31,15 @@ def chat(req: ChatRequest):
     if not OPENAI_API_KEY:
         raise HTTPException(503, "OPENAI_API_KEY is not configured on the server.")
 
-    engines = {e["unit"]: e for e in data_service.get_risk_scores()}
+    engines = {e["unit"]: e for e in data_service.get_risk_scores(req.subset)}
     if req.unit not in engines:
         raise HTTPException(404, f"Engine {req.unit} not found")
 
     context = dict(engines[req.unit])
-    shap = data_service.get_shap_explanations().get(req.unit)
+    shap = data_service.get_shap_explanations(req.subset).get(req.unit)
     if shap:
         context["shap"] = shap
-    agent_analysis = data_service.get_agent_analysis(req.unit)
+    agent_analysis = data_service.get_agent_analysis(req.unit, req.subset)
     if agent_analysis:
         context["agent_analysis"] = agent_analysis
 
