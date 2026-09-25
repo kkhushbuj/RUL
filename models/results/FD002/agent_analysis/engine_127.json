@@ -83,8 +83,8 @@
   },
   "critique_result": {
     "agrees_with_pipeline": false,
-    "critique": "The pipeline's conclusion that sensor_4 and sensor_11 indicate novel anomalies is premature. The absence of literature on these sensors doesn't confirm novelty; it could simply reflect their low historical importance or lack of study. Additionally, the model's reliance on these sensors might be an artifact of the SHAP background distribution or sensor noise, especially if their variance is low in this engine's data.",
-    "alternative_explanation": "The model's emphasis on sensor_4 and sensor_11 could be due to near-zero variance in other sensors for this specific engine, causing the model to overfit to minor fluctuations in these sensors. Alternatively, the sequence window used for prediction might be too narrow, capturing transient noise rather than meaningful trends.",
+    "critique": "The pipeline's hypothesis focuses on sensor_4 and sensor_11 as novel contributors, but the SHAP stability analysis shows real instability, with the top sensor flipping between sensor_4 and sensor_11 across reruns (agreement rate 0.6) and moderate importance volatility (CV 0.117). This suggests the attribution itself may be unreliable rather than indicating a novel physical phenomenon. Without stability, the 'novelty' claim is premature.",
+    "alternative_explanation": "The apparent importance of sensor_4 and sensor_11 could be a SHAP background-sampling artifact, as evidenced by the low top-sensor agreement rate and non-negligible importance volatility across reruns.",
     "confidence": "medium"
   }
 }
