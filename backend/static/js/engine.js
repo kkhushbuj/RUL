@@ -23,17 +23,26 @@ const EngineView = (() => {
       </div>
     `;
 
+    let engineData, sensors;
     try {
-      const [engineData, sensors] = await Promise.all([
+      [engineData, sensors] = await Promise.all([
         API.engine(unit, subset),
         API.engineSensors(unit, subset).catch(() => null),
       ]);
-      engine = engineData;
-      sensorRows = sensors;
-      activeSensor = engine.shap?.top_sensors?.[0]?.sensor ?? null;
-      renderContent();
     } catch (err) {
       document.getElementById("engine-content").innerHTML = `<div class="panel">Engine ${unit} not found.</div>`;
+      return;
+    }
+
+    engine = engineData;
+    sensorRows = sensors;
+    activeSensor = engine.shap?.top_sensors?.[0]?.sensor ?? null;
+    try {
+      renderContent();
+    } catch (err) {
+      console.error("Failed to render engine detail:", err);
+      document.getElementById("engine-content").innerHTML =
+        `<div class="panel">Engine ${unit} data loaded, but the page failed to render: ${err.message}. Check the browser console for details.</div>`;
     }
   }
 

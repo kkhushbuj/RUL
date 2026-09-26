@@ -3,6 +3,16 @@ const Charts = (() => {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   }
 
+  let warnedMissingChart = false;
+  function chartLibAvailable() {
+    if (typeof Chart !== "undefined") return true;
+    if (!warnedMissingChart) {
+      console.warn("Chart.js failed to load (CDN unreachable?) — charts will be skipped.");
+      warnedMissingChart = true;
+    }
+    return false;
+  }
+
   const registry = new Map();
 
   function destroy(canvasId) {
@@ -21,6 +31,7 @@ const Charts = (() => {
   }
 
   function shapChart(canvasId, sensors) {
+    if (!chartLibAvailable()) return null;
     destroy(canvasId);
     const sorted = [...sensors].sort((a, b) => a.importance - b.importance);
     const labels = sorted.map((s) => s.sensor.replace("sensor_", "S"));
@@ -60,6 +71,7 @@ const Charts = (() => {
   }
 
   function sensorTrendChart(canvasId, rows, sensorKey) {
+    if (!chartLibAvailable()) return null;
     destroy(canvasId);
     const labels = rows.map((r) => r.cycle);
     const values = rows.map((r) => r[sensorKey]);
@@ -105,6 +117,7 @@ const Charts = (() => {
   }
 
   function calibrationChart(canvasId, engines) {
+    if (!chartLibAvailable()) return null;
     destroy(canvasId);
     const tiers = { low: [], medium: [], high: [] };
     let maxRul = 0;
@@ -149,6 +162,7 @@ const Charts = (() => {
   }
 
   function gaugeChart(canvasId, score) {
+    if (!chartLibAvailable()) return null;
     destroy(canvasId);
     const tier = riskTier(score);
     const color = cssVar(`--risk-${tier}`);
