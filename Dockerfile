@@ -2,8 +2,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements-deploy.txt .
+RUN pip install --no-cache-dir -r requirements-deploy.txt
 
 # Only what the FastAPI app reads at runtime: the backend code (API + static
 # dashboard) and the precomputed results it serves. Raw C-MAPSS data and
