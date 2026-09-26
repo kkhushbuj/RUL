@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.11025701588291834
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Novel",
     "confidence": "high",
@@ -81,5 +81,10 @@
     ],
     "confidence": "high"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's hypothesis relies on sensor_14 being a novel and critical factor, but without SHAP stability evidence, we cannot rule out that this attribution is a background-sampling artifact. The absence of 'shap_stability' data means we don't know if sensor_14 consistently drives the explanation across different SHAP runs. Additionally, the model might be extrapolating if sensor_14 operates in a range not well-represented in training data, or if its variance is unusually low for this engine.",
+    "alternative_explanation": "The attribution to sensor_14 could be a SHAP background-sampling artifact, as stability evidence is absent. Alternatively, the model might be extrapolating due to sensor_14 operating outside its training distribution or having near-zero variance for this engine.",
+    "confidence": "medium"
+  }
 }

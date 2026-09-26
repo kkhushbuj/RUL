@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.08320286230954452
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Novel",
     "confidence": "high",
@@ -81,5 +81,10 @@
     ],
     "confidence": "high"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's hypothesis relies on the novelty of sensor_12 and sensor_14's contributions, but without SHAP stability evidence, it's unclear if these attributions are robust or artifacts of background sampling. The absence of literature support for these sensors doesn't necessarily imply novel dynamics; it could also mean the model is extrapolating outside its training distribution or focusing on noisy sensors. The hypothesis should consider simpler explanations like sensor noise or model extrapolation before proposing novel degradation pathways.",
+    "alternative_explanation": "The model might be extrapolating outside its training distribution, focusing on sensors with high variance in this specific engine but not generally predictive of RUL, or the top attributions could be unstable SHAP artifacts (though this cannot be confirmed without stability evidence).",
+    "confidence": "medium"
+  }
 }

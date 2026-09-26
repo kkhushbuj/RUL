@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.03872399291083223
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Contradicted",
     "confidence": "high",
@@ -82,5 +82,10 @@
     ],
     "confidence": "medium"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's hypothesis focuses on sensor_11's high importance as a potential novel failure mode, but without SHAP stability evidence, this could be a background-sampling artifact. The contradiction with sensor_15's importance is noted, but the model might be extrapolating outside its training distribution if sensor_15's behavior in this engine differs from typical cases. Additionally, sensor noise or near-zero variance in other sensors could artificially inflate sensor_11's relative importance.",
+    "alternative_explanation": "The model's attribution to sensor_11 might be a SHAP artifact due to lack of stability evidence, or the model could be extrapolating outside its training distribution if this engine exhibits unusual sensor_15 behavior.",
+    "confidence": "medium"
+  }
 }

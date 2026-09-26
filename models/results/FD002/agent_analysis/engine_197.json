@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.04616707247484721
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Contradicted",
     "confidence": "medium",
@@ -83,5 +83,10 @@
     ],
     "confidence": "medium"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": true,
+    "critique": "The pipeline's synthesis and hypothesis are well-supported given the evidence. Sensor_11's consistent top importance across SHAP reruns (agreement rate 1.0, CV 0.169) confirms its attribution is stable, not a noise artifact. The contradiction with sensor_15's documented low importance and the model's high attribution for it is a valid concern. The hypothesis reasonably suggests sensor_11 might capture undocumented conditions, while sensor_15's behavior could be context-specific. The recommended checks are appropriate for further investigation.",
+    "alternative_explanation": null,
+    "confidence": "high"
+  }
 }

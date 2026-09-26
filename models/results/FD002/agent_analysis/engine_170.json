@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.09116421606558693
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Novel",
     "confidence": "high",
@@ -80,5 +80,10 @@
     ],
     "confidence": "medium"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": true,
+    "critique": "The SHAP attribution is stable across reruns, confirming sensor_11 as the top contributor. The pipeline's verdict of 'Novel' is reasonable given the absence of literature support for sensor_11, sensor_2, sensor_4, and sensor_6. However, the hypothesis about novel interactions is speculative and requires further validation through the suggested next checks.",
+    "alternative_explanation": null,
+    "confidence": "medium"
+  }
 }

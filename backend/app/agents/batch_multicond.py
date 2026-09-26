@@ -5,7 +5,12 @@ short by quota or network errors can be restarted without repeating calls.
 
     python -m app.agents.batch_multicond synth FD002 FD004
     python -m app.agents.batch_multicond critique FD002 FD004
+    python -m app.agents.batch_multicond recritique FD002 FD004
     python -m app.agents.batch_multicond summary FD002 FD004
+
+`recritique` force-recomputes every engine's critique_result with the current
+Critique Agent (e.g. after a prompt change), backing up the prior
+critique_result per engine first so old vs new stays comparable.
 """
 import json
 import sys
@@ -13,6 +18,7 @@ import sys
 from app.agents.critique_agent import critique
 from app.agents.graph import build_graph
 from app.config import RESULTS_DIR
+from app.services.data_service import get_shap_stability
 
 MAX_CONSECUTIVE_FAILURES = 3
 FD001_NOVEL_RATE = 13 / 15
@@ -30,6 +36,7 @@ def synthesis_pass(subset) -> bool:
     base, out = _paths(subset)
     kb = json.loads((base / "literature_knowledge_base.json").read_text())
     engines = json.loads((base / "shap_explanations.json").read_text())
+    stability_by_unit = get_shap_stability(subset)
     graph = build_graph()
     failures = 0
     for i, engine in enumerate(engines, start=1):
@@ -44,6 +51,7 @@ def synthesis_pass(subset) -> bool:
             "synthesis_result": None,
             "hypothesis_result": None,
             "critique_result": None,
+            "shap_stability": stability_by_unit.get(engine["unit"]),
         }
         try:
             result = graph.invoke(state)
@@ -63,14 +71,16 @@ def synthesis_pass(subset) -> bool:
 
 def critique_pass(subset) -> bool:
     _, out = _paths(subset)
+    stability_by_unit = get_shap_stability(subset)
     failures = 0
     for path in sorted(out.glob("engine_*.json")):
         state = json.loads(path.read_text())
         if state.get("critique_result"):
             continue
+        stability = state.get("shap_stability") or stability_by_unit.get(state["unit"])
         try:
             state["critique_result"] = critique(
-                state["engine_shap"], state["synthesis_result"], state.get("hypothesis_result")
+                state["engine_shap"], state["synthesis_result"], state.get("hypothesis_result"), stability
             )
         except Exception as e:
             failures += 1
@@ -83,6 +93,61 @@ def critique_pass(subset) -> bool:
         state["include_critique"] = True
         path.write_text(json.dumps(state, indent=2))
         print(f"[{subset}] critiqued {path.stem}: agrees={state['critique_result'].get('agrees_with_pipeline')}", flush=True)
+    return True
+
+
+def recritique_pass(subset) -> bool:
+    """Force-recompute critique_result for every engine using the current
+    (evidence-based) Critique Agent, always passing real shap_stability data.
+    Unlike critique_pass, this does NOT skip engines that already have a
+    critique_result — it's meant for re-running after a Critique Agent change,
+    to compare old vs new behavior on identical inputs (same engine_shap,
+    same synthesis_result/hypothesis_result — those are left untouched).
+
+    The old critique_result for every engine is written once, up front, to
+    agent_analysis/_critique_backup_pre_stability.json before anything is
+    overwritten, so old vs new stays comparable even after this runs.
+    """
+    _, out = _paths(subset)
+    stability_by_unit = get_shap_stability(subset)
+    paths = sorted(out.glob("engine_*.json"))
+
+    backup_path = out / "_critique_backup_pre_stability.json"
+    if not backup_path.exists():
+        backup = {}
+        for path in paths:
+            state = json.loads(path.read_text())
+            if state.get("critique_result"):
+                backup[str(state["unit"])] = state["critique_result"]
+        backup_path.write_text(json.dumps(backup, indent=2))
+        print(f"[{subset}] backed up {len(backup)} pre-stability critique_results -> {backup_path}", flush=True)
+    else:
+        print(f"[{subset}] backup already exists at {backup_path}, not overwriting", flush=True)
+
+    failures = 0
+    for i, path in enumerate(paths, start=1):
+        state = json.loads(path.read_text())
+        stability = stability_by_unit.get(state["unit"])
+        try:
+            state["critique_result"] = critique(
+                state["engine_shap"], state["synthesis_result"], state.get("hypothesis_result"), stability
+            )
+        except Exception as e:
+            failures += 1
+            print(f"[{subset}] recritique {path.stem} FAILED ({type(e).__name__}: {e})", flush=True)
+            if failures >= MAX_CONSECUTIVE_FAILURES:
+                print(f"[{subset}] {failures} consecutive failures — stopping (quota or outage).", flush=True)
+                return False
+            continue
+        failures = 0
+        state["include_critique"] = True
+        path.write_text(json.dumps(state, indent=2))
+        print(
+            f"[{subset}] {i}/{len(paths)} recritiqued {path.stem}: "
+            f"stable={stability.get('stable') if stability else None} "
+            f"agrees={state['critique_result'].get('agrees_with_pipeline')}",
+            flush=True,
+        )
     return True
 
 
@@ -132,6 +197,11 @@ def summarize(subset) -> dict:
 if __name__ == "__main__":
     stage, subsets = sys.argv[1], sys.argv[2:]
     for s in subsets:
-        ok = {"synth": synthesis_pass, "critique": critique_pass, "summary": summarize}[stage](s)
+        ok = {
+            "synth": synthesis_pass,
+            "critique": critique_pass,
+            "recritique": recritique_pass,
+            "summary": summarize,
+        }[stage](s)
         if ok is False:
             sys.exit(1)

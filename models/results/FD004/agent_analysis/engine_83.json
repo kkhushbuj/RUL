@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.11601026288623616
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Novel",
     "confidence": "high",
@@ -80,5 +80,10 @@
     ],
     "confidence": "high"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's conclusion that sensor_6 indicates a novel failure mechanism is premature. Without evidence of SHAP stability, the high importance of sensor_6 could be a background-sampling artifact. Additionally, the model might be extrapolating outside its training distribution if sensor_6 has low variance or high noise for this engine, which could lead to spurious attributions.",
+    "alternative_explanation": "The high importance of sensor_6 might be a SHAP artifact due to background sampling noise, or the model could be extrapolating due to sensor_6 having low variance or high noise in this engine's data.",
+    "confidence": "medium"
+  }
 }

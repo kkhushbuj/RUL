@@ -1,8 +1,15 @@
 const Dashboard = (() => {
   let engines = [];
+  let subset = "FD001";
   let sortKey = "risk_rank";
   let query = "";
   let onlyDeep = false;
+
+  const SUBSET_LABELS = {
+    FD001: "single operating condition, HPC degradation",
+    FD002: "six operating conditions, HPC degradation",
+    FD004: "six operating conditions, HPC + fan degradation",
+  };
 
   function riskBadge(score) {
     const tier = Charts.riskTier(score);
@@ -10,13 +17,26 @@ const Dashboard = (() => {
     return `<span class="risk-badge ${tier}"><span class="rb-dot"></span>${label}</span>`;
   }
 
-  async function render() {
+  function subsetSwitcherHTML(subsets) {
+    const options = (subsets.length ? subsets.map((s) => s.subset) : SUBSETS)
+      .map(
+        (s) =>
+          `<button class="filter-chip ${s === subset ? "active" : ""}" data-subset="${s}">${s}</button>`
+      )
+      .join("");
+    return `<div class="subset-switcher" id="subset-switcher">${options}</div>`;
+  }
+
+  async function render(initialSubset) {
+    subset = initialSubset || "FD001";
     const app = document.getElementById("app");
     app.innerHTML = `
       <section class="hero fade-in">
         <p class="eyebrow">Predictive Maintenance</p>
         <h1>Turbofan Fleet — Remaining Useful Life</h1>
-        <p>LSTM-based RUL prediction over the NASA C-MAPSS FD001 fleet (100 engines), explained with SHAP and cross-checked against published literature by a multi-agent research pipeline.</p>
+        <p>LSTM-based RUL prediction over the NASA C-MAPSS <strong id="subset-name">${subset}</strong> fleet, explained with SHAP and cross-checked against published literature by a multi-agent research pipeline.</p>
+        <p class="panel-sub" id="subset-desc"></p>
+        <div id="subset-switcher-slot"></div>
       </section>
 
       <section class="stat-grid" id="stat-grid">
@@ -37,7 +57,7 @@ const Dashboard = (() => {
           <div class="panel-header">
             <div>
               <p class="panel-title">Fleet health at a glance</p>
-              <p class="panel-sub">All 100 engines, ordered by unit ID · ring = flagged for deep AI analysis</p>
+              <p class="panel-sub" id="fleet-sub">All engines, ordered by unit ID · ring = flagged for deep AI analysis</p>
             </div>
             <div class="legend">
               <span class="legend-item"><span class="legend-swatch" style="background:var(--risk-low)"></span>low</span>
@@ -82,6 +102,8 @@ const Dashboard = (() => {
       </section>
     `;
 
+    document.getElementById("subset-desc").textContent = SUBSET_LABELS[subset] || "";
+
     document.getElementById("engine-search").addEventListener("input", (e) => {
       query = e.target.value.trim();
       renderTable();
@@ -98,12 +120,20 @@ const Dashboard = (() => {
       });
     });
 
-    const [metrics, summary, engineList] = await Promise.all([
-      API.modelMetrics().catch(() => null),
-      API.agentSummary().catch(() => null),
-      API.engines().catch(() => []),
+    const [subsets, metrics, summary, engineList] = await Promise.all([
+      API.subsets().catch(() => []),
+      API.modelMetrics(subset).catch(() => null),
+      API.agentSummary(subset).catch(() => null),
+      API.engines(subset).catch(() => []),
     ]);
+    document.getElementById("subset-switcher-slot").innerHTML = subsetSwitcherHTML(subsets);
+    document.querySelectorAll("#subset-switcher [data-subset]").forEach((btn) => {
+      btn.addEventListener("click", () => Router.goSubset(btn.dataset.subset));
+    });
+
     engines = engineList;
+    document.getElementById("fleet-sub").textContent =
+      `All ${engines.length} engines, ordered by unit ID · ring = flagged for deep AI analysis`;
     renderStats(metrics, summary);
     renderFleetGrid();
     Charts.calibrationChart("calibration-chart", engines);
@@ -131,7 +161,7 @@ const Dashboard = (() => {
       card.querySelector(".stat-hint").textContent = hint;
       if (cls) card.classList.add(cls);
     };
-    set(cards[0], metrics?.test_rmse, 2, "cycles, FD001 test set");
+    set(cards[0], metrics?.test_rmse, 2, `cycles, ${subset} test set`);
     set(cards[1], metrics?.test_nasa_score, 0, "asymmetric PHM08 metric");
     set(
       cards[2],
@@ -162,7 +192,7 @@ const Dashboard = (() => {
       .join("");
 
     grid.querySelectorAll(".fleet-cell").forEach((cell) => {
-      cell.addEventListener("click", () => Router.go(`/engine/${cell.dataset.unit}`));
+      cell.addEventListener("click", () => Router.goEngine(cell.dataset.unit));
       cell.addEventListener("mousemove", (ev) => {
         tooltip.style.display = "block";
         tooltip.style.left = ev.clientX + 14 + "px";
@@ -214,7 +244,7 @@ const Dashboard = (() => {
       .join("");
 
     document.querySelectorAll("#engine-tbody tr").forEach((tr) => {
-      tr.addEventListener("click", () => Router.go(`/engine/${tr.dataset.unit}`));
+      tr.addEventListener("click", () => Router.goEngine(tr.dataset.unit));
     });
   }
 

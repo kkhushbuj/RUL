@@ -7,27 +7,43 @@ function toast(message, type = "success") {
   setTimeout(() => el.remove(), 5000);
 }
 
+const SUBSETS = ["FD001", "FD002", "FD004"];
+
 const Router = (() => {
+  let currentSubset = "FD001";
+
   function parse() {
     const hash = location.hash.replace(/^#/, "") || "/";
-    const engineMatch = hash.match(/^\/engine\/(\d+)$/);
-    if (engineMatch) return { view: "engine", unit: Number(engineMatch[1]) };
-    return { view: "dashboard" };
+    const engineMatch = hash.match(/^\/(?:(FD00[124])\/)?engine\/(\d+)$/);
+    if (engineMatch) {
+      return { view: "engine", subset: engineMatch[1] || "FD001", unit: Number(engineMatch[2]) };
+    }
+    const dashMatch = hash.match(/^\/(FD00[124])?$/);
+    return { view: "dashboard", subset: (dashMatch && dashMatch[1]) || "FD001" };
   }
 
   function go(path) {
     location.hash = path;
   }
 
+  function goEngine(unit) {
+    go(currentSubset === "FD001" ? `/engine/${unit}` : `/${currentSubset}/engine/${unit}`);
+  }
+
+  function goSubset(subset) {
+    go(subset === "FD001" ? "/" : `/${subset}`);
+  }
+
   async function dispatch() {
     const route = parse();
+    currentSubset = route.subset;
     document.getElementById("app").scrollTop = 0;
     window.scrollTo({ top: 0, behavior: "instant" });
     if (route.view === "engine") {
       EngineView.resetChat();
-      await EngineView.render(route.unit);
+      await EngineView.render(route.unit, route.subset);
     } else {
-      await Dashboard.render();
+      await Dashboard.render(route.subset);
     }
   }
 
@@ -36,7 +52,7 @@ const Router = (() => {
     dispatch();
   }
 
-  return { go, init };
+  return { go, goEngine, goSubset, init, get subset() { return currentSubset; } };
 })();
 
 function initTheme() {

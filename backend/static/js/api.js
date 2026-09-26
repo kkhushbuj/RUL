@@ -6,15 +6,16 @@ const API = (() => {
   }
 
   return {
-    engines: () => getJSON("/api/engines"),
-    engine: (unit) => getJSON(`/api/engines/${unit}`),
-    engineSensors: (unit) => getJSON(`/api/engines/${unit}/sensors`),
-    modelMetrics: () => getJSON("/api/model/metrics"),
-    agentSummary: () => getJSON("/api/model/agent-summary"),
-    knowledgeBase: () => getJSON("/api/model/knowledge-base"),
+    subsets: () => getJSON("/api/model/subsets"),
+    engines: (subset) => getJSON(`/api/engines?subset=${subset}`),
+    engine: (unit, subset) => getJSON(`/api/engines/${unit}?subset=${subset}`),
+    engineSensors: (unit, subset) => getJSON(`/api/engines/${unit}/sensors?subset=${subset}`),
+    modelMetrics: (subset) => getJSON(`/api/model/metrics?subset=${subset}`),
+    agentSummary: (subset) => getJSON(`/api/model/agent-summary?subset=${subset}`),
+    knowledgeBase: (subset) => getJSON(`/api/model/knowledge-base?subset=${subset}`),
 
-    analyzeEngine: async (unit) => {
-      const res = await fetch(`/api/engines/${unit}/analyze`, { method: "POST" });
+    analyzeEngine: async (unit, subset) => {
+      const res = await fetch(`/api/engines/${unit}/analyze?subset=${subset}`, { method: "POST" });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.detail ?? `analyze -> ${res.status}`);
@@ -22,11 +23,11 @@ const API = (() => {
       return res.json();
     },
 
-    chat: async (unit, question) => {
+    chat: async (unit, question, subset) => {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ unit, question }),
+        body: JSON.stringify({ unit, question, subset }),
       });
       if (!res.ok) throw new Error(`chat -> ${res.status}`);
       return res.json();

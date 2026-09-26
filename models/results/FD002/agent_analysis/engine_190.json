@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.0427344778380023
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Novel",
     "confidence": "high",
@@ -80,5 +80,10 @@
     ],
     "confidence": "medium"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": true,
+    "critique": "The SHAP attributions are stable across reruns, confirming sensor_11 as the consistent top contributor. The pipeline's focus on sensor_11 and sensor_4 is justified, as these sensors lack literature support and could indicate under-documented failure modes. However, the absence of sensor variance data in the input prevents ruling out a near-zero variance explanation for sensor_15's importance.",
+    "alternative_explanation": null,
+    "confidence": "high"
+  }
 }

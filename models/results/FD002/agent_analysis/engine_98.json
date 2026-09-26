@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.11608784686420714
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Novel",
     "confidence": "high",
@@ -80,5 +80,10 @@
     ],
     "confidence": "high"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's hypothesis assumes the model has discovered novel physics, but without SHAP stability evidence, the top sensor attributions could be artifacts of background sampling noise. Additionally, the model might be extrapolating outside its training distribution if these sensors exhibit near-zero variance or high noise in this engine's data, which wasn't checked. The synthesis also didn't verify if the sequence window captures the full pre-failure dynamics, potentially missing critical context.",
+    "alternative_explanation": "The result could stem from SHAP background sampling instability, sensor noise, or the model operating outside its training distribution due to unusual sensor behavior in this engine.",
+    "confidence": "medium"
+  }
 }

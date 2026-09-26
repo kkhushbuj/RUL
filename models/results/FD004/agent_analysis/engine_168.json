@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.1750111898628451
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Novel",
     "confidence": "high",
@@ -80,5 +80,10 @@
     ],
     "confidence": "high"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's hypothesis relies on the absence of literature to claim novelty, but it doesn't rule out simpler model-setup issues. Without SHAP stability evidence, the top sensor attributions could be background-sampling artifacts. Additionally, the model might be extrapolating outside its training distribution if these sensors have low variance or high noise for this engine, which the pipeline doesn't address.",
+    "alternative_explanation": "The result could stem from SHAP background-sampling instability or sensor noise/low variance, as the pipeline lacks evidence to rule these out.",
+    "confidence": "medium"
+  }
 }

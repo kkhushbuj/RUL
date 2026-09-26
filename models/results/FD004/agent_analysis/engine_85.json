@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.07955533413535021
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Novel",
     "confidence": "high",
@@ -80,5 +80,10 @@
     ],
     "confidence": "high"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's hypothesis assumes sensor_6's importance is meaningful, but without SHAP stability evidence, this could be a background-sampling artifact. The model might also be extrapolating outside its training distribution if sensor_6 has near-zero variance or high noise for this engine. These simpler explanations should be ruled out before attributing physical significance to sensor_6.",
+    "alternative_explanation": "SHAP artifact due to background sampling noise or sensor_6 having near-zero variance/high noise in this engine's data.",
+    "confidence": "medium"
+  }
 }

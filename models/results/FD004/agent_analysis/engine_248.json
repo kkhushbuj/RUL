@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.11046297720776846
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Confirmed",
     "confidence": "high",
@@ -72,5 +72,10 @@
     ]
   },
   "hypothesis_result": null,
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "While the pipeline's synthesis aligns sensor_11's importance with literature, there is no evidence provided for SHAP stability. Without stability data, it's unclear if sensor_11's top attribution is robust or a background-sampling artifact. Additionally, the absence of information about sensor variance, noise, or the sequence window limits confidence in the result.",
+    "alternative_explanation": null,
+    "confidence": "low"
+  }
 }

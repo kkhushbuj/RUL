@@ -62,7 +62,7 @@
     },
     "non_sensor_share": 0.14032715890113154
   },
-  "include_critique": false,
+  "include_critique": true,
   "synthesis_result": {
     "verdict": "Novel",
     "confidence": "high",
@@ -81,5 +81,10 @@
     ],
     "confidence": "high"
   },
-  "critique_result": null
+  "critique_result": {
+    "agrees_with_pipeline": false,
+    "critique": "The pipeline's conclusion relies heavily on sensor_6 being the top driver, but without SHAP stability evidence, this attribution could be a background-sampling artifact. The model might also be extrapolating outside its training distribution if sensor_6 exhibits low variance or noise for this engine. These simpler explanations should be ruled out before accepting the novel hypothesis.",
+    "alternative_explanation": "SHAP artifact due to background sampling noise or sensor_6 having low variance/noise in this engine's data",
+    "confidence": "medium"
+  }
 }
